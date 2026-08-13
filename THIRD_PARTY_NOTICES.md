@@ -16,6 +16,14 @@ licenses remain with their respective authors.
 - The local semantic runtime bundles ONNX Runtime. Public preview packages
   include its license, third-party notices, privacy statement, and a generated
   production dependency inventory under `Contents/Resources/licenses/`.
+- Electron 43.4.0 includes FFmpeg under LGPL-2.1-or-later as the dynamically
+  linked library at `Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib`.
+  The complete FFmpeg notice and LGPL text are in
+  `Electron-LICENSES.chromium.html`. A compatible replacement can be installed
+  in a modified source build and the application re-signed for macOS. Electron's
+  corresponding Chromium FFmpeg source is identified by commit
+  `ad41607c61898cf7150e0fb20fe4bbabd44922a3`:
+  https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/ad41607c61898cf7150e0fb20fe4bbabd44922a3
 
 The source repository does not vendor `node_modules`. Run `npm ci` to resolve
 the pinned dependency graph and inspect each installed package's license files.
