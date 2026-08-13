@@ -5,6 +5,7 @@ release/
 coverage/
 .build/
 /build/native/
+/build/legal/generated/
 playwright-report/
 test-results/
 audit/

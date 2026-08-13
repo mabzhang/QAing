@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { open, rename, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import {
   app,
   BrowserWindow,
@@ -369,7 +370,11 @@ async function bootstrap(): Promise<void> {
       project: projectApplication,
       simulation: simulationApplication,
     })
-    ipcRegistration = registerIpcHandlers(ipcMain, createdWindow.webContents, facade)
+    ipcRegistration = registerIpcHandlers(ipcMain, createdWindow.webContents, facade, {
+      expectedMainFrameUrl: app.isPackaged
+        ? pathToFileURL(join(__dirname, '../renderer/index.html')).href
+        : null,
+    })
     unsubscribeFacade = facade.subscribe((snapshot) => ipcRegistration?.publishSnapshot(snapshot))
   }, () => {
     audio.abort()

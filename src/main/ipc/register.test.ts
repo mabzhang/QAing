@@ -68,6 +68,32 @@ function fixture(): {
 }
 
 describe('IPC public error boundary', () => {
+  it('rejects a packaged IPC request from a non-bundled document URL', async () => {
+    const handlers = new Map<string, (event: IpcMainInvokeEvent, ...args: unknown[]) => Promise<unknown>>()
+    const ipcMain = {
+      removeHandler: vi.fn(),
+      handle: vi.fn((channel: string, handler: (event: IpcMainInvokeEvent, ...args: unknown[]) => Promise<unknown>) => {
+        handlers.set(channel, handler)
+      }),
+    } as unknown as IpcMain
+    const mainFrame = { url: 'https://attacker.example/renderer' }
+    const renderer = {
+      id: 73,
+      mainFrame,
+      isDestroyed: vi.fn(() => false),
+      send: vi.fn(),
+    } as unknown as WebContents
+    const facade = fixture().facade
+    registerIpcHandlers(ipcMain, renderer, facade, {
+      expectedMainFrameUrl: 'file:///Applications/QAing.app/Contents/Resources/app.asar/out/renderer/index.html',
+    })
+    const handler = handlers.get(IPC_CHANNELS.getSnapshot)
+    if (!handler) throw new Error('Expected snapshot IPC handler')
+
+    await expect(handler({ sender: renderer, senderFrame: mainFrame } as unknown as IpcMainInvokeEvent))
+      .rejects.toThrow('IPC request rejected')
+  })
+
   it('exposes only a bounded Markdown QA code and line number', async () => {
     const target = fixture()
     const privateDetail = '/Users/private/qa.md contains secret source text'

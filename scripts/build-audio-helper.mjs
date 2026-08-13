@@ -1,4 +1,4 @@
-import { chmodSync, copyFileSync, mkdirSync, rmSync } from 'node:fs'
+import { chmodSync, copyFileSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -19,11 +19,27 @@ const binaryDirectory = execFileSync(
   { cwd: projectRoot, encoding: 'utf8', env: process.env },
 ).trim()
 const sourcePath = join(binaryDirectory, 'qaing-audio-helper')
+const strippedPath = `${outputPath}.stripped`
 
 mkdirSync(dirname(outputPath), { recursive: true })
 rmSync(outputPath, { force: true })
+rmSync(strippedPath, { force: true })
 copyFileSync(sourcePath, outputPath)
+try {
+  execFileSync('strip', ['-S', '-x', '-o', strippedPath, outputPath], {
+    cwd: projectRoot,
+    stdio: 'inherit',
+  })
+  rmSync(outputPath, { force: true })
+  renameSync(strippedPath, outputPath)
+} finally {
+  rmSync(strippedPath, { force: true })
+}
 chmodSync(outputPath, 0o755)
+
+if (readFileSync(outputPath).includes(Buffer.from('/Users/'))) {
+  throw new Error('Native helper must not contain local macOS home-directory build paths')
+}
 
 const architectures = execFileSync('lipo', ['-archs', outputPath], { encoding: 'utf8' }).trim()
 if (architectures !== 'arm64') {

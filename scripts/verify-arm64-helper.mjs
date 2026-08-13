@@ -14,6 +14,7 @@ const MINIMUM_MACOS_VERSION = '14.0'
 const MINIMUM_MACOS_NUMBER = 14
 const require = createRequire(import.meta.url)
 const { signAsync } = require('@electron/osx-sign')
+const { extractFile, listPackage, statFile } = require('@electron/asar')
 
 function output(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8' })
@@ -99,12 +100,103 @@ function assertPackagedMachOsCompatibility(appPath) {
   for (const path of regularFiles(appPath)) {
     const minimum = machOMinimumVersion(path)
     if (minimum === null) continue
-    binaries.push({ path, minimum })
+    const architectures = output('lipo', ['-archs', path])
+    if (architectures !== 'arm64') {
+      throw new Error(`Packaged Mach-O must contain only arm64, received ${architectures}: ${path}`)
+    }
+    binaries.push({ path, minimum, architectures })
     if (minimum > MINIMUM_MACOS_NUMBER) {
       throw new Error(`Packaged native binary requires macOS ${minimum}, above declared ${MINIMUM_MACOS_VERSION}: ${path}`)
     }
   }
   if (binaries.length === 0) throw new Error('Packaged app contains no verifiable Mach-O binaries')
+}
+
+function assertSameFile(source, packaged, label) {
+  accessSync(source, constants.R_OK)
+  accessSync(packaged, constants.R_OK)
+  if (sha256(source) !== sha256(packaged)) throw new Error(`Packaged legal material differs from source: ${label}`)
+}
+
+function assertPackagedLegalMaterials(appPath) {
+  const licenses = join(appPath, 'Contents', 'Resources', 'licenses')
+  for (const [source, packaged] of [
+    [join(projectRoot, 'LICENSE'), join(licenses, 'QAing-LICENSE.txt')],
+    [join(projectRoot, 'NOTICE'), join(licenses, 'QAing-NOTICE.txt')],
+    [join(projectRoot, 'TRADEMARKS.md'), join(licenses, 'QAing-TRADEMARKS.md')],
+    [join(projectRoot, 'THIRD_PARTY_NOTICES.md'), join(licenses, 'QAing-THIRD_PARTY_NOTICES.md')],
+    [join(projectRoot, 'node_modules', 'electron', 'dist', 'LICENSE'), join(licenses, 'Electron-LICENSE.txt')],
+    [join(projectRoot, 'node_modules', 'electron', 'dist', 'LICENSES.chromium.html'), join(licenses, 'Electron-LICENSES.chromium.html')],
+  ]) {
+    assertSameFile(source, packaged, packaged.slice(licenses.length + 1))
+  }
+  const legalSource = join(projectRoot, 'build', 'legal')
+  const legalTarget = join(licenses, 'public-binary')
+  for (const source of regularFiles(legalSource)) {
+    const relative = source.slice(legalSource.length + 1)
+    assertSameFile(source, join(legalTarget, relative), relative)
+  }
+  for (const required of [
+    'generated/onnxruntime-LICENSE.txt',
+    'generated/onnxruntime-ThirdPartyNotices.txt',
+    'generated/onnxruntime-Privacy.md',
+    'generated/npm-production-dependency-licenses.json',
+    'API-CREDENTIALS.md',
+    'MODEL-PROVENANCE.md',
+    'PUBLIC-BINARY-NOTICE.md',
+  ]) {
+    accessSync(join(legalTarget, required), constants.R_OK)
+  }
+}
+
+const FORBIDDEN_ASAR_PATHS = [
+  /(?:^|\/)node_modules\/@img(?:\/|$)/u,
+  /(?:^|\/)node_modules\/@huggingface\/transformers\/node_modules\/(?:@img|sharp)(?:\/|$)/u,
+  /(?:^|\/)node_modules\/(?:onnxruntime-web|guid-typescript)(?:\/|$)/u,
+  /(?:^|\/)node_modules\/zod\/src(?:\/|$)/u,
+  /(?:^|\/)node_modules\/better-sqlite3\/lib\/(?:darwin-x64|linux-[^/]+|linuxmusl-[^/]+|win32-[^/]+)\.js$/u,
+  /(?:^|\/)(?:\.env(?:\..*)?|credentials\.json|qaing\.sqlite3|window-preferences\.json)$/iu,
+  /(?:^|\/)(?:\u9700\u6c42|audit|logo)(?:\/|$)/u,
+]
+
+const HIGH_CONFIDENCE_SECRET_PATTERNS = [
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/u,
+  /\bsk-[A-Za-z0-9_-]{20,}\b/u,
+  /\bgh[pousr]_[A-Za-z0-9]{30,255}\b/u,
+  /\bAKIA[0-9A-Z]{16}\b/u,
+  /\bAIza[0-9A-Za-z_-]{35}\b/u,
+  /\bxox[baprs]-[0-9A-Za-z-]{20,}\b/u,
+  /(?:api|access|secret)[_-]?key\s*[:=]\s*["'][A-Za-z0-9/+_-]{16,}["']/iu,
+]
+
+function assertPublicAsar(appPath) {
+  const appAsar = join(appPath, 'Contents', 'Resources', 'app.asar')
+  accessSync(appAsar, constants.R_OK)
+  const entries = listPackage(appAsar)
+  for (const listedPath of entries) {
+    const path = listedPath.replace(/^\/+/, '')
+    if (FORBIDDEN_ASAR_PATHS.some((pattern) => pattern.test(path))) {
+      throw new Error(`Public package contains a forbidden path: ${path}`)
+    }
+    let stat
+    try {
+      stat = statFile(appAsar, path)
+    } catch {
+      continue
+    }
+    if ('files' in stat || stat.size > 20 * 1024 * 1024) continue
+    if (!/\.(?:c?js|mjs|json|md|txt|html|map|yml|yaml)$/iu.test(path)) continue
+    const buffer = extractFile(appAsar, path)
+    if (buffer.includes(0)) continue
+    const text = buffer.toString('utf8')
+    if (HIGH_CONFIDENCE_SECRET_PATTERNS.some((pattern) => pattern.test(text))) {
+      throw new Error(`Public package contains a credential-like value: ${path}`)
+    }
+  }
+  const packagedManifest = JSON.parse(extractFile(appAsar, 'package.json').toString('utf8'))
+  if (packagedManifest.version !== '0.1.8-preview.1') {
+    throw new Error(`Packaged application version must be 0.1.8-preview.1, received: ${packagedManifest.version}`)
+  }
 }
 
 export default async function verifyArm64Helper(context) {
@@ -126,6 +218,9 @@ export default async function verifyArm64Helper(context) {
   if (architectures !== 'arm64') {
     throw new Error(`Packaged audio helper must contain only arm64, received: ${architectures}`)
   }
+  if (readFileSync(helperPath).includes(Buffer.from('/Users/'))) {
+    throw new Error('Packaged audio helper contains a local macOS home-directory build path')
+  }
 
   const loadCommands = output('otool', ['-l', helperPath])
   if (!/\bminos 14\.0\b/u.test(loadCommands)) throw new Error('Packaged audio helper must target macOS 14.0')
@@ -135,8 +230,12 @@ export default async function verifyArm64Helper(context) {
   }
 
   assertPlistValue(appInfoPlist, 'CFBundleIdentifier', 'com.qaing.desktop')
+  assertPlistValue(appInfoPlist, 'CFBundleShortVersionString', '0.1.8')
+  assertPlistValue(appInfoPlist, 'CFBundleVersion', '1081')
   assertPlistValue(appInfoPlist, 'LSMinimumSystemVersion', MINIMUM_MACOS_VERSION)
   assertPackagedMachOsCompatibility(appPath)
+  assertPackagedLegalMaterials(appPath)
+  assertPublicAsar(appPath)
   // electron-builder normalizes a custom source icon to `icon.icns` inside
   // the bundle. Verify the actual payload rather than relying on its source
   // filename so an Electron fallback icon cannot pass this gate.

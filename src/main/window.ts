@@ -1,6 +1,25 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, dialog, shell } from 'electron'
 
+export function developmentRendererUrl(
+  isPackaged: boolean,
+  value: string | undefined,
+): string | null {
+  if (isPackaged) return null
+  const candidate = value?.trim()
+  if (!candidate) return null
+  try {
+    const parsed = new URL(candidate)
+    const loopbackHost = parsed.hostname === 'localhost'
+      || parsed.hostname === '127.0.0.1'
+      || parsed.hostname === '[::1]'
+    if ((parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || !loopbackHost) return null
+    return candidate
+  } catch {
+    return null
+  }
+}
+
 export function createMainWindow(
   onCreated?: (window: BrowserWindow) => void,
   onFatalError?: () => void,
@@ -62,8 +81,9 @@ export function createMainWindow(
 
   onCreated?.(window)
   window.once('ready-to-show', () => window.show())
-  if (process.env['ELECTRON_RENDERER_URL']) {
-    void window.loadURL(process.env['ELECTRON_RENDERER_URL']).catch(() => showLoadFailure())
+  const rendererUrl = developmentRendererUrl(app.isPackaged, process.env['ELECTRON_RENDERER_URL'])
+  if (rendererUrl) {
+    void window.loadURL(rendererUrl).catch(() => showLoadFailure())
   } else {
     void window.loadFile(join(__dirname, '../renderer/index.html')).catch(() => showLoadFailure())
   }

@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import sharp from 'sharp'
+import sharp from 'sharp-build'
 import { describe, expect, it } from 'vitest'
 
 const projectRoot = resolve(import.meta.dirname, '..', '..')

@@ -6,7 +6,7 @@
 
 # QAing
 
-> **当前状态：0.1.7 开源预览版。** 源代码按 Apache License 2.0 开放。当前没有完成 Developer ID 签名与 Apple 公证的公开安装包；请从源码运行，或自行构建仅供测试的 ad-hoc 包。
+> **当前状态：0.1.8 Preview 1。** 源代码按 Apache License 2.0 开放；macOS arm64 安装包作为 GitHub Pre-release 提供。安装包为 ad-hoc 签名且未经 Apple 公证，不等同于正式签名发行版。
 
 QAing 是面向演讲、路演、会议和现场问答的 macOS 项目型实时语音知识助手。它从麦克风或系统音频识别问题，优先使用当前项目中已审核的预设 QA；没有可靠命中时，再从项目资料中检索证据并生成候选答案。
 
@@ -29,11 +29,17 @@ QAing 是面向演讲、路演、会议和现场问答的 macOS 项目型实时�
 
 QAing 不是完全离线产品，也不支持 Windows、Intel Mac 或 macOS 13 及以下版本。
 
+**安装包不包含任何默认、共享或开发者内置 API Key。** 使用 DeepSeek 与豆包 SeedASR 前，必须在 QAing 设置中填写你自己账号申请的凭据，并自行承担对应费用与供应商条款。
+
 ## 安装与公开二进制状态
 
-当前暂不提供公开 DMG/ZIP。仓库中的历史 0.1.7 安装包继续保留为不可见的 Draft Release，尚未作为开源二进制发行。原因是它采用 ad-hoc 签名、未完成 Apple 公证，而且随包第三方组件的许可证、可替换/重链接和对应源码说明仍需补齐。
+请在 [QAing 0.1.8 Preview 1](https://github.com/mabzhang/QAing/releases/tag/v0.1.8-preview.1) 中下载：
 
-请按“从源码运行”章节启动项目，或使用 `npm run package:dir` / `npm run package:internal` 自行构建测试包。ad-hoc 包首次打开可使用“Control/右键 → 打开”，或在“系统设置 → 隐私与安全性”中使用 macOS 提供的“仍要打开”；不要关闭 Gatekeeper。此类构建升级后可能被 macOS 视为新的代码身份，并再次要求授权。
+- `QAing-0.1.8-preview.1-arm64.dmg`：推荐的拖拽安装包。
+- `QAing-0.1.8-preview.1-arm64-mac.zip`：备用压缩包。
+- `SHA256SUMS.txt`：下载完成后的完整性校验值。
+
+本预览包采用 ad-hoc 签名，未完成 Developer ID 签名与 Apple 公证。首次打开可使用“Control/右键 → 打开”，或在“系统设置 → 隐私与安全性”中使用 macOS 提供的“仍要打开”；**不要关闭 Gatekeeper**。升级后可能被 macOS 视为新的代码身份，并再次要求授权。
 
 ## 五分钟上手
 
@@ -60,7 +66,7 @@ QAing 不是完全离线产品，也不支持 Windows、Intel Mac 或 macOS 13 �
 
 ## 支持的文件类型
 
-| 资料类型 | 0.1.7 行为 |
+| 资料类型 | 0.1.8 Preview 1 行为 |
 | --- | --- |
 | TXT、Markdown、JSON、CSV、TSV | 可在应用内做本地确定性转换；预设 QA 不接受 TXT |
 | `转换资料库/` 中的手动 Markdown | 通过安全与格式校验后可使用；预设 QA 仍须符合严格问答格式 |
@@ -118,7 +124,7 @@ QAing 不是完全离线产品，也不支持 Windows、Intel Mac 或 macOS 13 �
 - 麦克风和系统音频不能在同一会话中同时捕获。
 - 当前没有自动更新、账号登录、团队协作、云同步或多设备同步。
 - PDF/Office/OCR/图片与资料型音视频的自动转换尚未内置。
-- 当前没有完成 Developer ID 签名和 Apple 公证的公开安装包。
+- 当前公开的是 ad-hoc 签名、未经 Apple 公证的测试预览包，不是正式生产发行包。
 
 ## 从源码运行
 

@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, resolve } from 'node:path'
-import sharp from 'sharp'
+import sharp from 'sharp-build'
 
 const projectRoot = resolve(import.meta.dirname, '..')
 const defaultSource = join(projectRoot, 'build', 'brand', 'ZenX-wordmark-source.png')

@@ -232,8 +232,31 @@ export interface IpcRegistration {
   dispose(): void
 }
 
-function trusted(event: IpcMainInvokeEvent, renderer: WebContents): void {
-  if (event.sender.id !== renderer.id || event.senderFrame !== renderer.mainFrame) {
+export interface IpcTrustOptions {
+  readonly expectedMainFrameUrl?: string | null
+}
+
+function canonicalDocumentUrl(value: string): string | null {
+  try {
+    const parsed = new URL(value)
+    parsed.hash = ''
+    parsed.search = ''
+    return parsed.href
+  } catch {
+    return null
+  }
+}
+
+function trusted(
+  event: IpcMainInvokeEvent,
+  renderer: WebContents,
+  expectedMainFrameUrl: string | null,
+): void {
+  const actualFrameUrl = event.senderFrame?.url
+  const trustedDocument = expectedMainFrameUrl === null
+    || (typeof actualFrameUrl === 'string'
+      && canonicalDocumentUrl(actualFrameUrl) === canonicalDocumentUrl(expectedMainFrameUrl))
+  if (event.sender.id !== renderer.id || event.senderFrame !== renderer.mainFrame || !trustedDocument) {
     throw new Error('IPC request rejected')
   }
 }
@@ -259,7 +282,9 @@ export function registerIpcHandlers(
   ipcMain: IpcMain,
   renderer: WebContents,
   facade: DesktopFacade,
+  options: IpcTrustOptions = {},
 ): IpcRegistration {
+  const expectedMainFrameUrl = options.expectedMainFrameUrl ?? null
   const unsubscribeWorkspace = facade.subscribeQaWorkspace?.((event) => {
     if (!renderer.isDestroyed()) renderer.send(IPC_CHANNELS.qaWorkspaceChanged, event)
   }) ?? (() => undefined)
@@ -275,7 +300,7 @@ export function registerIpcHandlers(
   ): void => {
     ipcMain.removeHandler(channel)
     ipcMain.handle(channel, async (event, ...args: TArgs) => {
-      trusted(event, renderer)
+      trusted(event, renderer, expectedMainFrameUrl)
       try {
         return await handler(event, ...args)
       } catch (error) {

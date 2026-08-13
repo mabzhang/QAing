@@ -6,7 +6,7 @@
 
 # QAing
 
-> **Status: 0.1.7 open-source preview.** The source code is available under the Apache License 2.0. No publicly distributed binary has completed Developer ID signing and Apple notarization; run from source or build an ad-hoc test package locally.
+> **Status: 0.1.8 Preview 1.** Source code is available under the Apache License 2.0, and the macOS arm64 package is offered as a GitHub Pre-release. The package is ad-hoc signed and not Apple-notarized; it is not a production-signed release.
 
 QAing is a project-scoped real-time voice knowledge assistant for presentations, pitches, meetings, and live Q&A on macOS. It transcribes microphone or system audio, checks reviewed preset Q&A in the active project first, and otherwise retrieves project evidence before generating a candidate answer.
 
@@ -29,11 +29,17 @@ QAing is a project-scoped real-time voice knowledge assistant for presentations,
 
 QAing is not fully offline. Windows, Intel Macs, and macOS 13 or earlier are not supported.
 
+**No default, shared, developer-owned, or embedded API keys are included.** Before using DeepSeek or Doubao SeedASR, you must enter credentials issued to your own provider account in QAing Settings and accept the related fees and provider terms.
+
 ## Installation and public-binary status
 
-No public DMG/ZIP is currently offered. The historical 0.1.7 binary remains in an unpublished Draft Release and is not an open-source binary distribution. It is ad-hoc signed, not notarized by Apple, and still needs complete third-party licensing, replacement/relinking, and corresponding-source instructions.
+Download [QAing 0.1.8 Preview 1](https://github.com/mabzhang/QAing/releases/tag/v0.1.8-preview.1):
 
-Use the Development Setup below, or build a test package locally with `npm run package:dir` / `npm run package:internal`. On first launch of an ad-hoc package, use Control/right-click → Open or the macOS-provided Open Anyway action under System Settings → Privacy & Security; do not disable Gatekeeper. An upgraded ad-hoc build may appear as a new code identity and request permissions again.
+- `QAing-0.1.8-preview.1-arm64.dmg`: recommended drag-to-install package.
+- `QAing-0.1.8-preview.1-arm64-mac.zip`: fallback archive.
+- `SHA256SUMS.txt`: integrity checksums for the published assets.
+
+This preview is ad-hoc signed and has not completed Developer ID signing or Apple notarization. On first launch, use Control/right-click → Open or the macOS-provided Open Anyway action under System Settings → Privacy & Security; **do not disable Gatekeeper**. An upgraded ad-hoc build may appear as a new code identity and request permissions again.
 
 ## Quick start
 
@@ -60,7 +66,7 @@ Project folder/
 
 ## Supported file types
 
-| Input | Behavior in 0.1.7 |
+| Input | Behavior in 0.1.8 Preview 1 |
 | --- | --- |
 | TXT, Markdown, JSON, CSV, TSV | Deterministic local conversion; TXT is not accepted as preset Q&A |
 | Manual Markdown in `转换资料库/` | Usable after security and schema validation; preset Q&A still requires the strict Q&A format |
@@ -118,7 +124,7 @@ Project folder/
 - Microphone and system audio cannot be captured simultaneously in one session.
 - There is no automatic update, account login, team collaboration, cloud sync, or multi-device sync.
 - Built-in automatic conversion for PDF/Office/OCR/images and library-oriented media is not available yet.
-- No public binary has completed Developer ID signing and Apple notarization.
+- The public package is an ad-hoc signed, non-notarized test preview, not a production release.
 
 ## Development setup
 

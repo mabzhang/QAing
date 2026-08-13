@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'out', 'release', 'coverage', 'node_modules', 'build', 'native/audio-helper/.build'] },
+  { ignores: ['dist', 'out', 'release', 'coverage', 'node_modules', 'build', 'vendor', 'native/audio-helper/.build'] },
   js.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs}'],

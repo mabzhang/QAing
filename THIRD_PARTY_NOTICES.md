@@ -8,9 +8,14 @@ licenses remain with their respective authors.
   `@huggingface/transformers` (Apache-2.0), `better-sqlite3` (MIT),
   `lucide-react` (ISC), `react` / `react-dom` (MIT), `ws` (MIT), and `zod`
   (MIT).
-- The local semantic runtime pulls platform-specific optional packages. Binary
-  distributions may contain dynamically linked libvips components distributed
-  under LGPL-3.0-or-later, plus libraries under other compatible licenses.
+- QAing's public macOS preview uses a local text-only `sharp` compatibility
+  package. Real `sharp`/libvips packages may be present in the development
+  dependency tree for brand-asset generation and optional Transformer image
+  features, but they are explicitly excluded from the public application
+  bundle. Image understanding is not a supported application feature.
+- The local semantic runtime bundles ONNX Runtime. Public preview packages
+  include its license, third-party notices, privacy statement, and a generated
+  production dependency inventory under `Contents/Resources/licenses/`.
 
 The source repository does not vendor `node_modules`. Run `npm ci` to resolve
 the pinned dependency graph and inspect each installed package's license files.
@@ -27,19 +32,15 @@ must be resolved before a production binary distribution.
 
 ## Binary distribution status
 
-The historical 0.1.7 internal binary is intentionally kept as an unpublished
-Draft Release. It is not a public download because its bundled third-party
-license materials and relinking/source instructions have not yet been completed.
-Future public binaries must ship the applicable license texts, notices, and
-corresponding-source or relinking information required by their bundled
-components.
+The historical 0.1.7 internal binary remains an unpublished Draft Release.
+Beginning with 0.1.8 preview packages, the applicable project, Electron,
+Chromium, ONNX Runtime, and direct runtime dependency materials are shipped in
+the application bundle. The preview package is ad-hoc signed and not notarized;
+that distribution status is independent of its open-source license.
 
 Relevant upstream sources include:
 
 - https://github.com/huggingface/transformers.js
-- https://github.com/lovell/sharp
-- https://github.com/lovell/sharp-libvips/tree/v1.3.2
-- https://github.com/libvips/libvips
 - https://github.com/microsoft/onnxruntime
 
 This file is an attribution aid and does not replace the license terms shipped
