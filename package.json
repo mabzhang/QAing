@@ -1,0 +1,130 @@
+{
+  "name": "qaing",
+  "version": "0.1.7",
+  "private": true,
+  "description": "双模式实时语音问答桌面助手",
+  "type": "module",
+  "main": "out/main/index.js",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "npm run build:native && electron-vite dev",
+    "build:native": "node scripts/build-audio-helper.mjs",
+    "build:brand": "node scripts/build-brand-assets.mjs && iconutil -c icns build/icons/QAing.iconset -o build/icons/QAing.icns",
+    "build": "npm run build:brand && npm run build:native && npm run typecheck && electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:correctness && npm run test:performance",
+    "test:correctness": "vitest run --exclude src/main/data/vector-performance.test.ts",
+    "test:performance": "vitest run src/main/data/vector-performance.test.ts --maxWorkers=1",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:model:real": "QAING_RUN_REAL_BGE=1 vitest run src/main/data/local-bge-real.test.ts --reporter=verbose",
+    "lint": "eslint . --max-warnings=0",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "package:dir": "npm run build && electron-builder --mac --arm64 --dir",
+    "smoke:package": "node scripts/smoke-packaged-app.mjs",
+    "package:internal": "npm run build && electron-builder --mac --arm64 --config.mac.notarize=false",
+    "package": "node scripts/require-production-signing.mjs && npm run build && electron-builder --mac --arm64"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0",
+    "better-sqlite3": "13.0.3",
+    "lucide-react": "0.468.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "ws": "8.21.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@swc/core": "1.15.47",
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/ws": "8.18.1",
+    "@vitejs/plugin-react": "5.2.0",
+    "@vitest/coverage-v8": "4.1.0",
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "eslint": "9.39.2",
+    "eslint-plugin-react-hooks": "7.0.1",
+    "eslint-plugin-react-refresh": "0.4.26",
+    "globals": "16.5.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.54.0",
+    "vite": "7.3.6",
+    "vitest": "4.1.0"
+  },
+  "build": {
+    "appId": "com.qaing.desktop",
+    "productName": "QAing",
+    "asar": true,
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build/native/qaing-audio-helper",
+        "to": "bin/qaing-audio-helper"
+      },
+      {
+        "from": "build/icons/ZenXMenuBarTemplate.png",
+        "to": "icons/ZenXMenuBarTemplate.png"
+      },
+      {
+        "from": "build/icons/ZenXMenuBarTemplate@2x.png",
+        "to": "icons/ZenXMenuBarTemplate@2x.png"
+      }
+    ],
+    "mac": {
+      "icon": "build/icons/QAing.icns",
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "minimumSystemVersion": "14.0",
+      "hardenedRuntime": true,
+      "notarize": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "sign": "scripts/sign-macos.mjs",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "QAing 需要麦克风权限以实时转写现场提问。",
+        "NSAudioCaptureUsageDescription": "QAing 需要系统音频权限以实时转写会议声音。",
+        "NSScreenCaptureUsageDescription": "QAing 需要屏幕与系统音频录制权限以实时转写会议声音。"
+      }
+    },
+    "dmg": {
+      "background": "build/dmg/ZenX-dmg-background.png",
+      "iconSize": 104,
+      "iconTextSize": 13,
+      "window": {
+        "width": 660,
+        "height": 420
+      },
+      "contents": [
+        {
+          "x": 170,
+          "y": 235
+        },
+        {
+          "x": 490,
+          "y": 235,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "afterPack": "scripts/verify-arm64-helper.mjs"
+  },
+  "overrides": {
+    "adm-zip": "0.6.0",
+    "sharp": "0.35.3"
+  }
+}

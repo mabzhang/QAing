@@ -1,0 +1,2 @@
+1c824349f453197b0d7ac2d0fee1795271610dd8ed733d69f258a5d73df889bc  QAing-0.1.7-arm64.dmg
+8dad42963fbdb697fdd885886badc22e8506bf7e657cf126cec8ada5a7dd0dac  QAing-0.1.7-arm64-mac.zip
