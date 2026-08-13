@@ -2,7 +2,16 @@
   "name": "qaing",
   "version": "0.1.7",
   "private": true,
+  "license": "Apache-2.0",
   "description": "双模式实时语音问答桌面助手",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mabzhang/QAing.git"
+  },
+  "homepage": "https://github.com/mabzhang/QAing#readme",
+  "bugs": {
+    "url": "https://github.com/mabzhang/QAing/issues"
+  },
   "type": "module",
   "main": "out/main/index.js",
   "engines": {

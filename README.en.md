@@ -6,7 +6,7 @@
 
 # QAing
 
-> **Status: 0.1.7 internal preview.** This repository is private. The current binary is ad-hoc signed and has not been notarized by Apple. It is not a public distribution build.
+> **Status: 0.1.7 open-source preview.** The source code is available under the Apache License 2.0. No publicly distributed binary has completed Developer ID signing and Apple notarization; run from source or build an ad-hoc test package locally.
 
 QAing is a project-scoped real-time voice knowledge assistant for presentations, pitches, meetings, and live Q&A on macOS. It transcribes microphone or system audio, checks reviewed preset Q&A in the active project first, and otherwise retrieves project evidence before generating a candidate answer.
 
@@ -29,15 +29,11 @@ QAing is a project-scoped real-time voice knowledge assistant for presentations,
 
 QAing is not fully offline. Windows, Intel Macs, and macOS 13 or earlier are not supported.
 
-## Installing v0.1.7
+## Installation and public-binary status
 
-1. Download the DMG from the private [v0.1.7 Release](https://github.com/mabzhang/QAing/releases/tag/v0.1.7). The ZIP is a fallback package.
-2. Open the DMG and drag `QAing` to `Applications`.
-3. Launch QAing from the Applications folder.
-4. This internal build is not notarized. On first launch, use Control/right-click → Open, or use the macOS-provided Open Anyway action under System Settings → Privacy & Security. Do not disable Gatekeeper.
-5. Request microphone and system-audio permissions separately in QAing. A full app restart may be required after changing permissions.
+No public DMG/ZIP is currently offered. The historical 0.1.7 binary remains in an unpublished Draft Release and is not an open-source binary distribution. It is ad-hoc signed, not notarized by Apple, and still needs complete third-party licensing, replacement/relinking, and corresponding-source instructions.
 
-Because the build is ad-hoc signed, an upgrade may appear to macOS as a new code identity and request permissions again. Stable Developer ID Application signing and Apple notarization are still required before public distribution.
+Use the Development Setup below, or build a test package locally with `npm run package:dir` / `npm run package:internal`. On first launch of an ad-hoc package, use Control/right-click → Open or the macOS-provided Open Anyway action under System Settings → Privacy & Security; do not disable Gatekeeper. An upgraded ad-hoc build may appear as a new code identity and request permissions again.
 
 ## Quick start
 
@@ -105,6 +101,7 @@ Project folder/
 | --- | --- | --- |
 | PCM audio | Doubao SeedASR | Cloud speech recognition; raw audio is not stored long-term by QAing |
 | Question and retrieved evidence snippets | DeepSeek | Evidence-grounded candidate answer generation |
+| Full Preparation Mode transcript | DeepSeek | Structured Markdown generation; recording and transcription authorization is required |
 | Simulation brief and evidence snippets | DeepSeek | Reviewable simulated Q&A drafts |
 | Project files, converted Markdown, SQLite, indexes | Local device | Project library, sessions, and recovery |
 | API credentials | Locally encrypted data protected by macOS secure storage | Runtime access to the configured providers |
@@ -113,6 +110,7 @@ Project folder/
 - Logs do not contain transcript bodies, document bodies, answer bodies, or credentials by default.
 - The Renderer runs with sandboxing and context isolation and can access only allowlisted IPC methods.
 - Never commit real API keys. Rotate a credential immediately if exposure is suspected.
+- Users are responsible for obtaining recording, transcription, and cloud-processing authorization and for reviewing the current DeepSeek and Doubao data-retention policies.
 
 ## Known limitations
 
@@ -120,7 +118,7 @@ Project folder/
 - Microphone and system audio cannot be captured simultaneously in one session.
 - There is no automatic update, account login, team collaboration, cloud sync, or multi-device sync.
 - Built-in automatic conversion for PDF/Office/OCR/images and library-oriented media is not available yet.
-- v0.1.7 is an ad-hoc internal build and has not completed Developer ID signing or Apple notarization.
+- No public binary has completed Developer ID signing and Apple notarization.
 
 ## Development setup
 
@@ -160,6 +158,14 @@ QAING_BGE_CACHE_DIR="$HOME/Library/Application Support/qaing/models" npm run tes
 - [Project Library Concept PRD (Chinese)](docs/PRD-QAing-项目资料库-概念版.md)
 - [Project Library Implementation PRD (Chinese)](docs/PRD-QAing-项目资料库-落地版.md)
 
-## License status
+## Custom development
 
-This is currently a private internal repository with no open-source license grant. Repository access does not grant redistribution, brand, or trademark rights. Before any future public release, the code license, third-party licenses, and ZenX/QAing brand-asset boundaries must be reviewed explicitly.
+For custom development or integration requirements, please contact me by scanning the WeChat QR code below.
+
+<p align="center">
+  <img src="docs/assets/contact-wechat-mab.png" alt="WeChat QR code for contacting Mab about custom QAing development" width="360">
+</p>
+
+## License
+
+Source code and documentation are licensed under the [Apache License 2.0](LICENSE). QAing/ZenX names, logos, application icons, installer artwork, and the contact QR code are not granted for brand use; see [TRADEMARKS.md](TRADEMARKS.md). Third-party components remain under their respective licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing, and report security issues privately according to [SECURITY.md](SECURITY.md).

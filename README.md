@@ -6,7 +6,7 @@
 
 # QAing
 
-> **当前状态：0.1.7 内部预览版。** 本仓库保持私有。当前安装包采用 ad-hoc 签名且尚未完成 Apple 公证，不用于公开分发。
+> **当前状态：0.1.7 开源预览版。** 源代码按 Apache License 2.0 开放。当前没有完成 Developer ID 签名与 Apple 公证的公开安装包；请从源码运行，或自行构建仅供测试的 ad-hoc 包。
 
 QAing 是面向演讲、路演、会议和现场问答的 macOS 项目型实时语音知识助手。它从麦克风或系统音频识别问题，优先使用当前项目中已审核的预设 QA；没有可靠命中时，再从项目资料中检索证据并生成候选答案。
 
@@ -29,15 +29,11 @@ QAing 是面向演讲、路演、会议和现场问答的 macOS 项目型实时�
 
 QAing 不是完全离线产品，也不支持 Windows、Intel Mac 或 macOS 13 及以下版本。
 
-## 安装 0.1.7
+## 安装与公开二进制状态
 
-1. 从私有 [v0.1.7 Release](https://github.com/mabzhang/QAing/releases/tag/v0.1.7) 下载 DMG；ZIP 仅作为备用。
-2. 打开 DMG，把 `QAing` 拖入 `Applications`。
-3. 务必从“应用程序”文件夹启动。
-4. 当前内部包未公证。首次打开可使用“Control/右键 → 打开”，或在“系统设置 → 隐私与安全性”中使用 macOS 提供的“仍要打开”。不要关闭 Gatekeeper。
-5. 在应用内分别申请麦克风和系统音频权限；权限修改后可能需要完全退出并重新打开 QAing。
+当前暂不提供公开 DMG/ZIP。仓库中的历史 0.1.7 安装包继续保留为不可见的 Draft Release，尚未作为开源二进制发行。原因是它采用 ad-hoc 签名、未完成 Apple 公证，而且随包第三方组件的许可证、可替换/重链接和对应源码说明仍需补齐。
 
-ad-hoc 构建在升级后可能被 macOS 视为新的代码身份，并再次要求授权。正式外发前仍需稳定的 Developer ID Application 签名与 Apple 公证。
+请按“从源码运行”章节启动项目，或使用 `npm run package:dir` / `npm run package:internal` 自行构建测试包。ad-hoc 包首次打开可使用“Control/右键 → 打开”，或在“系统设置 → 隐私与安全性”中使用 macOS 提供的“仍要打开”；不要关闭 Gatekeeper。此类构建升级后可能被 macOS 视为新的代码身份，并再次要求授权。
 
 ## 五分钟上手
 
@@ -105,6 +101,7 @@ ad-hoc 构建在升级后可能被 macOS 视为新的代码身份，并再次要
 | --- | --- | --- |
 | PCM 音频 | 豆包 SeedASR | 云端语音识别；QAing 不将原始音频长期落盘 |
 | 问题与命中的资料片段 | DeepSeek | 生成资料约束的候选答案 |
+| 前置模式完整转写正文 | DeepSeek | 生成结构化 Markdown；使用前应取得录音与转写授权 |
 | 模拟问答 Brief 与证据片段 | DeepSeek | 生成可审阅问答草稿 |
 | 项目文件、转换 Markdown、SQLite 与索引 | 本机 | 项目资料库、会话与恢复 |
 | API 凭据 | macOS 安全存储保护的本地密文 | 运行时调用对应供应商 API |
@@ -113,6 +110,7 @@ ad-hoc 构建在升级后可能被 macOS 视为新的代码身份，并再次要
 - 日志默认不记录转写正文、资料正文、答案正文或凭据。
 - Renderer 启用 sandbox 与 context isolation，只能调用白名单 IPC。
 - 不要向仓库提交真实 API Key；若怀疑凭据泄露，应立即在供应商平台轮换。
+- 使用者应自行确认已取得录音、转写和云端处理授权，并核对 DeepSeek 与豆包的最新数据留存政策。
 
 ## 已知限制
 
@@ -120,7 +118,7 @@ ad-hoc 构建在升级后可能被 macOS 视为新的代码身份，并再次要
 - 麦克风和系统音频不能在同一会话中同时捕获。
 - 当前没有自动更新、账号登录、团队协作、云同步或多设备同步。
 - PDF/Office/OCR/图片与资料型音视频的自动转换尚未内置。
-- 0.1.7 为 ad-hoc 内部包，未完成 Developer ID 签名和 Apple 公证。
+- 当前没有完成 Developer ID 签名和 Apple 公证的公开安装包。
 
 ## 从源码运行
 
@@ -160,6 +158,14 @@ QAING_BGE_CACHE_DIR="$HOME/Library/Application Support/qaing/models" npm run tes
 - [项目资料库概念版 PRD](docs/PRD-QAing-项目资料库-概念版.md)
 - [项目资料库落地版 PRD](docs/PRD-QAing-项目资料库-落地版.md)
 
-## 授权状态
+## 定制需求
 
-本仓库当前为私有内部项目，尚未授予开源许可证。访问本仓库不代表获得复制、再分发、品牌或商标使用授权。若未来公开，将另行确认代码许可证、第三方依赖许可与 ZenX/QAing 品牌素材边界。
+有定制需求请联系我。请使用微信扫描下方二维码添加好友。
+
+<p align="center">
+  <img src="docs/assets/contact-wechat-mab.png" alt="Mab 的微信联系二维码；有定制需求请联系我" width="360">
+</p>
+
+## 开源许可
+
+源代码与文档采用 [Apache License 2.0](LICENSE)。QAing/ZenX 名称、Logo、应用图标、安装视觉和联系二维码不包含在品牌使用授权中，详见 [TRADEMARKS.md](TRADEMARKS.md)。第三方组件继续遵循各自许可证，参见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。参与开发请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)；安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
