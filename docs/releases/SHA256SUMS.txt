@@ -1,2 +1,2 @@
-ce9828fefd85c2998af1fc961b0eaa3d103f9aea78c04c08d3d3fe5deebe1f96  QAing-0.1.8-preview.1-arm64.dmg
-9560ab34d38b32f78f3c6936b78f5441411ec46284b6606431256618c4ed0255  QAing-0.1.8-preview.1-arm64-mac.zip
+8fd557accfcd11759ca6277c573d6d80570276484a4116bcda2a7aa554c2e83b  QAing-0.1.8-preview.1-arm64.dmg
+742f8dba86a34d4fb1e3f9d82e2bfedb91a2c33649387aefd704ba64d9934046  QAing-0.1.8-preview.1-arm64-mac.zip
